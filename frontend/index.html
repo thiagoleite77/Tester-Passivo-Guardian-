@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Guardian Passivo Tester</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <h1>Guardian Passivo Tester</h1>
+
+    <section>
+        <h2>Configuração</h2>
+        <label>Link de comunicação / Endpoint</label>
+        <input id="endpoint" placeholder="Cole aqui o link de comunicação">
+        <button onclick="salvarEndpoint()">Salvar endpoint</button>
+    </section>
+
+    <main>
+        <section>
+            <h2>WebMétodos disponíveis</h2>
+            <button onclick="abrirCadastroWebMetodo()">Cadastrar novo webmétodo</button>
+            <div id="webmetodos"></div>
+        </section>
+
+        <section>
+            <h2>Fluxo do Cliente</h2>
+            <div id="fluxo"></div>
+            <button onclick="executarFluxo()">Executar Fluxo</button>
+        </section>
+    </main>
+
+    <section>
+        <h2>Cadastrar WebMétodo</h2>
+
+        <label>Nome do WebMétodo</label>
+        <input id="novoNome" placeholder="Ex: CadastraTicketGuardian">
+
+        <label>XML Template</label>
+        <textarea id="novoXmlTemplate" rows="12" placeholder="Cole aqui o XML SOAP padrão do método"></textarea>
+
+        <button onclick="cadastrarWebMetodo()">Salvar WebMétodo</button>
+    </section>
+
+    <h2>Log</h2>
+    <pre id="log"></pre>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
