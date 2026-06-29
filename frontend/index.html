@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Testes WS Guardian</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <header class="topbar">
+        <div>
+            <h1>Testes WS Guardian</h1>
+            <p>Ferramenta de testes para integração Passiva e Ativa</p>
+        </div>
+
+        <div class="modo-switch">
+            <label>
+                <input type="radio" name="modoIntegracao" value="passivo" checked>
+                Passivo
+            </label>
+
+            <label>
+                <input type="radio" name="modoIntegracao" value="ativo">
+                Ativo
+            </label>
+        </div>
+    </header>
+
+    <main class="app-layout">
+
+        <!-- PASSIVO -->
+        <section id="area-passivo" class="workspace">
+
+            <aside class="sidebar">
+                <h2>Passivo SOAP</h2>
+
+                <label>Endpoint SOAP</label>
+                <input id="endpointPassivo" type="text" placeholder="http://servidor/WS_GUARDIAN_PLUS.asmx">
+
+                <button onclick="salvarEndpointPassivo()">Salvar Endpoint</button>
+
+                <hr>
+
+                <h3>Cadastrar WebMétodo</h3>
+
+                <label>Nome</label>
+                <input id="nomeWebmetodo" type="text" placeholder="CadastraTicketGuardian">
+
+                <label>XML Template</label>
+                <textarea id="xmlTemplate" class="textarea-small" placeholder="Cole aqui o XML do WebMétodo"></textarea>
+
+                <button onclick="cadastrarWebmetodo()">Cadastrar</button>
+            </aside>
+
+            <section class="main-panel">
+                <div class="request-bar">
+                    <select id="selectWebmetodos"></select>
+
+                    <button onclick="carregarTemplate()">Carregar</button>
+                    <button onclick="adicionarAoFluxo()">Adicionar ao Fluxo</button>
+                    <button onclick="executarFluxo()" class="btn-send">Executar Fluxo</button>
+                </div>
+
+                <label>XML Request</label>
+                <textarea id="xmlRequest" class="editor"></textarea>
+
+                <label>Response</label>
+                <textarea id="responsePassivo" class="response-editor" readonly></textarea>
+            </section>
+
+            <aside class="right-panel">
+                <h3>Fluxo Montado</h3>
+
+                <ol id="listaFluxo" class="lista-fluxo"></ol>
+
+                <button onclick="limparFluxo()" class="btn-secondary">Limpar Fluxo</button>
+            </aside>
+
+        </section>
+
+        <!-- ATIVO -->
+        <section id="area-ativo" class="workspace hidden">
+
+            <aside class="sidebar">
+                <h2>Ativo</h2>
+
+                <p class="descricao">
+                    No modo ativo, o Guardian envia informações para esta API.
+                </p>
+
+                <div class="radio-column">
+                    <label>
+                        <input type="radio" name="tipoAtivo" value="rest" checked>
+                        REST/JSON
+                    </label>
+
+                    <label>
+                        <input type="radio" name="tipoAtivo" value="soap">
+                        SOAP
+                    </label>
+                </div>
+            </aside>
+
+            <section class="main-panel">
+
+                <div id="ativo-rest">
+                    <h3>Endpoint REST</h3>
+
+                    <label>Configure este endpoint no Guardian</label>
+                    <input id="endpointAtivoRest" type="text" readonly value="http://127.0.0.1:5000/api/guardian/rest">
+
+                    <div class="request-bar">
+                        <button onclick="copiarEndpoint('endpointAtivoRest')">Copiar Endpoint</button>
+                        <button onclick="consultarUltimaRequisicaoAtiva()" class="btn-send">Atualizar</button>
+                    </div>
+
+                    <label>Última requisição REST recebida</label>
+                    <textarea id="ultimaRequisicaoRest" class="response-editor" readonly></textarea>
+                </div>
+
+                <div id="ativo-soap" class="hidden">
+                    <h3>Endpoint SOAP</h3>
+
+                    <label>Configure este endpoint no Guardian</label>
+                    <input id="endpointAtivoSoap" type="text" readonly value="http://127.0.0.1:5000/api/guardian/soap">
+
+                    <div class="request-bar">
+                        <button onclick="copiarEndpoint('endpointAtivoSoap')">Copiar Endpoint</button>
+                        <button onclick="consultarUltimaRequisicaoAtiva()" class="btn-send">Atualizar</button>
+                    </div>
+
+                    <label>Última requisição SOAP recebida</label>
+                    <textarea id="ultimaRequisicaoSoap" class="response-editor" readonly></textarea>
+                </div>
+
+            </section>
+
+        </section>
+
+    </main>
+
+    <script src="script.js"></script>
+</body>
+
+</html>

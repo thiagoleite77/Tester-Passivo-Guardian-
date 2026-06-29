@@ -4,7 +4,8 @@ import os
 import json
 import re
 
-from soap_client import SoapClient
+from passivo.soap_client import SoapClient
+from ativo.integracao import IntegracaoAtivaGuardian
 
 app = Flask(__name__)
 CORS(app)
@@ -259,6 +260,80 @@ def atualizar_config():
             "endpoint": endpoint,
         }
     )
+
+
+# ativo ============
+
+from flask import request, jsonify
+from ativo.integracao import IntegracaoAtivaGuardian
+from datetime import datetime
+
+ULTIMA_REQUISICAO_ATIVA = {"rest": None, "soap": None}
+
+
+@app.route("/api/guardian/rest", methods=["POST", "PUT"])
+def receber_ativo_rest():
+    dados = request.get_json(silent=True)
+
+    registro = {
+        "tipo": "REST/JSON",
+        "data_hora": datetime.now().strftime("%d/%m/%Y %H:%M:%S"),
+        "metodo_http": request.method,
+        "ip_origem": request.remote_addr,
+        "headers": dict(request.headers),
+        "body": dados,
+    }
+
+    ULTIMA_REQUISICAO_ATIVA["rest"] = registro
+
+    return (
+        jsonify(
+            {
+                "status": "OK",
+                "mensagem": "Evento REST recebido com sucesso pelo endpoint ativo.",
+                "recebido_em": registro["data_hora"],
+            }
+        ),
+        200,
+    )
+
+
+@app.route("/api/guardian/soap", methods=["POST"])
+def receber_ativo_soap():
+    xml_recebido = request.data.decode("utf-8", errors="replace")
+
+    registro = {
+        "tipo": "SOAP",
+        "data_hora": datetime.now().strftime("%d/%m/%Y %H:%M:%S"),
+        "metodo_http": request.method,
+        "ip_origem": request.remote_addr,
+        "headers": dict(request.headers),
+        "body": xml_recebido,
+    }
+
+    ULTIMA_REQUISICAO_ATIVA["soap"] = registro
+
+    resposta_soap = """<?xml version="1.0" encoding="utf-8"?>
+<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+    <soap:Body>
+        <ReceberEventoResponse>
+            <Status>OK</Status>
+            <Mensagem>Evento SOAP recebido com sucesso pelo endpoint ativo.</Mensagem>
+        </ReceberEventoResponse>
+    </soap:Body>
+</soap:Envelope>"""
+
+    return resposta_soap, 200, {"Content-Type": "text/xml; charset=utf-8"}
+
+
+@app.route("/api/ativo/ultima-requisicao/<tipo>", methods=["GET"])
+def obter_ultima_requisicao_ativa(tipo):
+    tipo = tipo.lower()
+
+    if tipo not in ["rest", "soap"]:
+        return jsonify({"erro": "Tipo inválido. Use rest ou soap."}), 400
+
+    return jsonify({"tipo": tipo, "ultima_requisicao": ULTIMA_REQUISICAO_ATIVA[tipo]})
 
 
 if __name__ == "__main__":

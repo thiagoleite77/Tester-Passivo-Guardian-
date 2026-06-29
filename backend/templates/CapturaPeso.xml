@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+  <soap:Body>
+    <CapturaPeso xmlns="http://toledobrasil.com.br/WS_Guardian">
+      <PontoDeControle>string</PontoDeControle>
+      <TempoValidadePesoBom>int</TempoValidadePesoBom>
+      <TimeoutLeitura>int</TimeoutLeitura>
+      <produto>string</produto>
+      <codigo>string</codigo>
+      <segmentoInicial>string</segmentoInicial>
+      <segmentoFinal>string</segmentoFinal>
+    </CapturaPeso>
+  </soap:Body>
+</soap:Envelope>

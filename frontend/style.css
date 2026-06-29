@@ -1,0 +1,259 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: "Segoe UI", Arial, sans-serif;
+    background: #0f172a;
+    color: #e5e7eb;
+    height: 100vh;
+    overflow: hidden;
+}
+
+.topbar {
+    height: 78px;
+    background: #111827;
+    border-bottom: 1px solid #334155;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 28px;
+}
+
+.topbar h1 {
+    color: #d4ff00;
+    font-size: 24px;
+}
+
+.topbar p {
+    color: #94a3b8;
+    font-size: 13px;
+    margin-top: 4px;
+}
+
+.modo-switch {
+    display: flex;
+    gap: 18px;
+    background: #020617;
+    border: 1px solid #334155;
+    padding: 10px 16px;
+    border-radius: 10px;
+}
+
+.modo-switch label,
+.radio-column label {
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.app-layout {
+    height: calc(100vh - 78px);
+}
+
+.workspace {
+    height: 100%;
+    display: grid;
+    grid-template-columns: 320px 1fr 300px;
+    gap: 1px;
+    background: #334155;
+}
+
+#area-ativo.workspace {
+    grid-template-columns: 320px 1fr;
+}
+
+.sidebar,
+.main-panel,
+.right-panel {
+    background: #0f172a;
+    padding: 20px;
+    overflow: auto;
+}
+
+.sidebar {
+    background: #111827;
+}
+
+.right-panel {
+    background: #111827;
+}
+
+h2 {
+    color: #02bbff;
+    margin-bottom: 18px;
+}
+
+h3 {
+    color: #93c5fd;
+    margin-bottom: 14px;
+}
+
+label {
+    display: block;
+    margin-top: 14px;
+    margin-bottom: 6px;
+    color: #cbd5e1;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+input,
+select,
+textarea {
+    width: 100%;
+    background: #020617;
+    color: #e5e7eb;
+    border: 1px solid #334155;
+    border-radius: 7px;
+    padding: 10px;
+    font-size: 14px;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+    outline: none;
+    border-color: #ffffff;
+}
+
+textarea {
+    resize: vertical;
+    font-family: Consolas, monospace;
+}
+
+.textarea-small {
+    height: 220px;
+}
+
+.editor {
+    height: 42vh;
+}
+
+.response-editor {
+    height: 34vh;
+    color: #86efac;
+}
+
+button {
+    background: #334155;
+    color: white;
+    border: 1px solid #475569;
+    padding: 10px 14px;
+    border-radius: 7px;
+    cursor: pointer;
+    font-weight: 600;
+    margin-top: 12px;
+}
+
+button:hover {
+    background: #3287ff;
+}
+
+.btn-send {
+    background: #bac6ff;
+    border-color: #000000;
+    color: #111827;
+}
+
+.btn-send:hover {
+    background: #fb923c;
+}
+
+.btn-secondary {
+    width: 100%;
+    background: #1e293b;
+}
+
+.request-bar {
+    display: flex;
+    gap: 10px;
+    align-items: end;
+    margin-bottom: 18px;
+}
+
+.request-bar select {
+    flex: 1;
+}
+
+.request-bar button {
+    margin-top: 0;
+    white-space: nowrap;
+}
+
+.lista-fluxo {
+    background: #020617;
+    border: 1px solid #334155;
+    border-radius: 8px;
+    padding: 16px 16px 16px 34px;
+    height: 65vh;
+    overflow-y: auto;
+}
+
+.lista-fluxo li {
+    margin-bottom: 10px;
+    color: #e5e7eb;
+}
+
+.radio-column {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    margin-top: 18px;
+}
+
+.descricao {
+    color: #94a3b8;
+    line-height: 1.5;
+    font-size: 14px;
+}
+
+hr {
+    border: none;
+    border-top: 1px solid #334155;
+    margin: 24px 0;
+}
+
+.hidden {
+    display: none !important;
+}
+
+::-webkit-scrollbar {
+    width: 9px;
+}
+
+::-webkit-scrollbar-track {
+    background: #0f172a;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #475569;
+    border-radius: 20px;
+}
+
+@media (max-width: 1100px) {
+    body {
+        overflow: auto;
+    }
+
+    .app-layout {
+        height: auto;
+    }
+
+    .workspace,
+    #area-ativo.workspace {
+        grid-template-columns: 1fr;
+    }
+
+    .editor,
+    .response-editor,
+    .lista-fluxo {
+        height: 300px;
+    }
+
+    .request-bar {
+        flex-direction: column;
+        align-items: stretch;
+    }
+}
