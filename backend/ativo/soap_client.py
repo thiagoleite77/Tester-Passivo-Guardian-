@@ -35,3 +35,6 @@ class GuardianSOAPAtivoClient:
 
         except requests.exceptions.RequestException as erro:
             return {"sucesso": False, "erro": str(erro)}
+
+
+###
