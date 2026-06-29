@@ -1,6 +1,7 @@
 const API_BASE = "http://127.0.0.1:5000";
 
 let fluxoPassivo = [];
+let webmetodoSelecionado = "";
 
 document.addEventListener("DOMContentLoaded", () => {
     configurarModoIntegracao();
@@ -8,8 +9,6 @@ document.addEventListener("DOMContentLoaded", () => {
     carregarConfig();
     listarWebmetodos();
     consultarUltimaRequisicaoAtiva();
-
-    document.getElementById("selectWebmetodos").addEventListener("change", carregarTemplate);
 });
 
 function configurarModoIntegracao() {
@@ -76,18 +75,41 @@ async function listarWebmetodos() {
         const response = await fetch(`${API_BASE}/webmetodos`);
         const catalogo = await response.json();
 
-        const select = document.getElementById("selectWebmetodos");
-        select.innerHTML = "";
+        const lista = document.getElementById("listaWebmetodos");
+        lista.innerHTML = "";
 
-        Object.keys(catalogo).forEach((nome) => {
-            const option = document.createElement("option");
-            option.value = nome;
-            option.textContent = nome;
-            select.appendChild(option);
+        const nomes = Object.keys(catalogo);
+
+        if (nomes.length === 0) {
+            lista.innerHTML = `<p class="texto-vazio">Nenhum WebMétodo cadastrado.</p>`;
+            return;
+        }
+
+        nomes.forEach((nome) => {
+            const item = document.createElement("button");
+            item.className = "webmetodo-item";
+            item.textContent = `📄 ${nome}`;
+
+            if (nome === webmetodoSelecionado) {
+                item.classList.add("ativo");
+            }
+
+            item.onclick = async () => {
+                webmetodoSelecionado = nome;
+                await listarWebmetodos();
+                await carregarTemplate();
+            };
+
+            lista.appendChild(item);
         });
     } catch (erro) {
         console.error("Erro ao listar webmétodos:", erro);
     }
+}
+
+function abrirCadastroWebmetodo() {
+    const area = document.getElementById("areaCadastroWebmetodo");
+    area.classList.toggle("hidden");
 }
 
 async function cadastrarWebmetodo() {
@@ -115,22 +137,25 @@ async function cadastrarWebmetodo() {
     alert(data.mensagem || data.erro);
 
     if (response.ok) {
+        webmetodoSelecionado = nome;
+
         document.getElementById("nomeWebmetodo").value = "";
         document.getElementById("xmlTemplate").value = "";
-        listarWebmetodos();
+        document.getElementById("areaCadastroWebmetodo").classList.add("hidden");
+
+        await listarWebmetodos();
+        await carregarTemplate();
     }
 }
 
 async function carregarTemplate() {
-    const metodo = document.getElementById("selectWebmetodos").value;
-
-    if (!metodo) {
-        alert("Selecione um WebMétodo.");
+    if (!webmetodoSelecionado) {
+        alert("Selecione um WebMétodo na lista.");
         return null;
     }
 
     try {
-        const response = await fetch(`${API_BASE}/template/${metodo}`);
+        const response = await fetch(`${API_BASE}/template/${encodeURIComponent(webmetodoSelecionado)}`);
         const data = await response.json();
 
         if (!response.ok) {
@@ -140,42 +165,37 @@ async function carregarTemplate() {
 
         document.getElementById("xmlRequest").value = data.xml;
         return data.xml;
-
     } catch (erro) {
-        alert("Erro ao carregar template. Verifique se o Flask está rodando.");
-        console.error(erro);
+        console.error("Erro ao carregar template:", erro);
+        alert("Erro ao carregar template.");
         return null;
     }
 }
 
-
 async function adicionarAoFluxo() {
-    const metodo = document.getElementById("selectWebmetodos").value;
-    let xml = document.getElementById("xmlRequest").value.trim();
-
-    if (!metodo) {
-        alert("Selecione um WebMétodo.");
+    if (!webmetodoSelecionado) {
+        alert("Selecione um WebMétodo na lista.");
         return;
     }
+
+    let xml = document.getElementById("xmlRequest").value.trim();
 
     if (!xml) {
         xml = await carregarTemplate();
 
         if (!xml) {
-            alert("Não foi possível carregar o template deste WebMétodo.");
             return;
         }
     }
 
     fluxoPassivo.push({
-        metodo: metodo,
+        metodo: webmetodoSelecionado,
         xml: xml,
         extrair: []
     });
 
     atualizarListaFluxo();
 }
-
 
 function limparFluxo() {
     fluxoPassivo = [];
@@ -223,6 +243,45 @@ async function executarFluxo() {
     const data = await response.json();
 
     document.getElementById("responsePassivo").value = JSON.stringify(data, null, 4);
+}
+
+async function removerWebmetodo() {
+    if (!webmetodoSelecionado) {
+        alert("Selecione um WebMétodo para excluir.");
+        return;
+    }
+
+    const confirmar = confirm(`Deseja realmente excluir o WebMétodo "${webmetodoSelecionado}"?`);
+
+    if (!confirmar) {
+        return;
+    }
+
+    try {
+        const response = await fetch(`${API_BASE}/webmetodos/${encodeURIComponent(webmetodoSelecionado)}`, {
+            method: "DELETE"
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            alert(data.erro || "Erro ao excluir WebMétodo.");
+            return;
+        }
+
+        alert(data.mensagem);
+
+        fluxoPassivo = fluxoPassivo.filter(item => item.metodo !== webmetodoSelecionado);
+
+        webmetodoSelecionado = "";
+        document.getElementById("xmlRequest").value = "";
+
+        atualizarListaFluxo();
+        await listarWebmetodos();
+    } catch (erro) {
+        console.error("Erro ao excluir WebMétodo:", erro);
+        alert("Erro ao excluir WebMétodo.");
+    }
 }
 
 function copiarEndpoint(idCampo) {

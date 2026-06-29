@@ -1,10 +1,6 @@
 {
-    "CadastraTickerGuardian": {
-        "soap_action": "http://toledobrasil.com.br/WS_Guardian/CadastraTickerGuardian",
-        "template": "templates/CadastraTickerGuardian.xml"
-    },
-    "CapturaPeso": {
-        "soap_action": "http://toledobrasil.com.br/WS_Guardian/CapturaPeso",
-        "template": "templates/CapturaPeso.xml"
+    "CadastraTicketGuardian": {
+        "soap_action": "http://toledobrasil.com.br/WS_Guardian/CadastraTicketGuardian",
+        "template": "templates/CadastraTicketGuardian.xml"
     }
 }

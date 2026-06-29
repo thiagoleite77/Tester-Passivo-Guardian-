@@ -43,23 +43,33 @@
 
                 <hr>
 
-                <h3>Cadastrar WebMétodo</h3>
+                <div class="sidebar-title-row">
+                    <h3>WebMétodos</h3>
+                    <button onclick="abrirCadastroWebmetodo()" class="btn-new">+ Novo</button>
+                </div>
 
-                <label>Nome</label>
-                <input id="nomeWebmetodo" type="text" placeholder="CadastraTicketGuardian">
+                <div id="areaCadastroWebmetodo" class="cadastro-webmetodo">
+                    <label>Nome</label>
+                    <input id="nomeWebmetodo" type="text" placeholder="CadastraTicketGuardian">
 
-                <label>XML Template</label>
-                <textarea id="xmlTemplate" class="textarea-small" placeholder="Cole aqui o XML do WebMétodo"></textarea>
+                    <label>XML Template</label>
+                    <textarea id="xmlTemplate" class="textarea-small"
+                        placeholder="Cole aqui o XML do WebMétodo"></textarea>
 
-                <button onclick="cadastrarWebmetodo()">Cadastrar</button>
+                    <button onclick="cadastrarWebmetodo()">Salvar WebMétodo</button>
+                </div>
+
+                <hr>
+
+                <h3>Lista de WebMétodos</h3>
+                <div id="listaWebmetodos" class="lista-webmetodos"></div>
             </aside>
 
             <section class="main-panel">
                 <div class="request-bar">
-                    <select id="selectWebmetodos"></select>
-
-                    <button onclick="carregarTemplate()">Carregar</button>
+                    <button onclick="carregarTemplate()">Recarregar Template</button>
                     <button onclick="adicionarAoFluxo()">Adicionar ao Fluxo</button>
+                    <button onclick="removerWebmetodo()" class="btn-danger">Excluir WebMétodo</button>
                     <button onclick="executarFluxo()" class="btn-send">Executar Fluxo</button>
                 </div>
 
