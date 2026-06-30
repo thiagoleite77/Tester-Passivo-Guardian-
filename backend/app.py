@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, send_from_directory
 from flask_cors import CORS
 import os
 import json
@@ -71,7 +71,16 @@ def extrair_tag(xml, tag):
 def substituir_variaveis(xml, variaveis):
     for nome, valor in variaveis.items():
         xml = xml.replace(f"{{{{{nome}}}}}", str(valor))
-    return xml
+    return xml @ app.route("/")
+
+
+def index():
+    return send_from_directory(FRONTEND_DIR, "index.html")
+
+
+@app.route("/<path:filename>")
+def frontend_files(filename):
+    return send_from_directory(FRONTEND_DIR, filename)
 
 
 @app.route("/webmetodos", methods=["GET"])
