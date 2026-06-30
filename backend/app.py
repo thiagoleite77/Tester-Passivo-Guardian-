@@ -11,7 +11,12 @@ app = Flask(__name__)
 CORS(app)
 
 
-@app.route("/")
+FRONTEND_DIR = os.path.abspath(
+    os.path.join(os.path.dirname(__file__), "..", "front-end")
+)
+
+
+@app.route("/", methods=["GET", "HEAD"])
 def index():
     return send_from_directory(FRONTEND_DIR, "index.html")
 
@@ -83,16 +88,6 @@ def substituir_variaveis(xml, variaveis):
     for nome, valor in variaveis.items():
         xml = xml.replace(f"{{{{{nome}}}}}", str(valor))
     return xml
-
-
-FRONTEND_DIR = os.path.abspath(
-    os.path.join(os.path.dirname(__file__), "..", "front-end")
-)
-
-
-@app.route("/", methods=["GET", "HEAD"])
-def index():
-    return send_from_directory(FRONTEND_DIR, "index.html")
 
 
 @app.route("/style.css")
