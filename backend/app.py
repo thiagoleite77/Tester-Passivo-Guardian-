@@ -336,6 +336,9 @@ def obter_ultima_requisicao_ativa(tipo):
     return jsonify({"tipo": tipo, "ultima_requisicao": ULTIMA_REQUISICAO_ATIVA[tipo]})
 
 
+import os
+
 if __name__ == "__main__":
     garantir_estrutura()
-    app.run(debug=True, port=5000)
+
+    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
