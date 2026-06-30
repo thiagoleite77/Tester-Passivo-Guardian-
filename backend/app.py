@@ -74,6 +74,12 @@ def substituir_variaveis(xml, variaveis):
     return xml @ app.route("/")
 
 
+FRONTEND_DIR = os.path.abspath(
+    os.path.join(os.path.dirname(__file__), "..", "front-end")
+)
+
+
+@app.route("/")
 def index():
     return send_from_directory(FRONTEND_DIR, "index.html")
 
