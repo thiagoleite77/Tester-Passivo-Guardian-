@@ -71,7 +71,7 @@ def extrair_tag(xml, tag):
 def substituir_variaveis(xml, variaveis):
     for nome, valor in variaveis.items():
         xml = xml.replace(f"{{{{{nome}}}}}", str(valor))
-    return xml @ app.route("/")
+    return xml
 
 
 FRONTEND_DIR = os.path.abspath(
@@ -79,14 +79,19 @@ FRONTEND_DIR = os.path.abspath(
 )
 
 
-@app.route("/")
+@app.route("/", methods=["GET", "HEAD"])
 def index():
     return send_from_directory(FRONTEND_DIR, "index.html")
 
 
-@app.route("/<path:filename>")
-def frontend_files(filename):
-    return send_from_directory(FRONTEND_DIR, filename)
+@app.route("/style.css")
+def style_css():
+    return send_from_directory(FRONTEND_DIR, "style.css")
+
+
+@app.route("/script.js")
+def script_js():
+    return send_from_directory(FRONTEND_DIR, "script.js")
 
 
 @app.route("/webmetodos", methods=["GET"])
@@ -279,8 +284,6 @@ def atualizar_config():
 
 # ativo ============
 
-from flask import request, jsonify
-from ativo.integracao import IntegracaoAtivaGuardian
 from datetime import datetime
 
 ULTIMA_REQUISICAO_ATIVA = {"rest": None, "soap": None}
