@@ -11,9 +11,14 @@ app = Flask(__name__)
 CORS(app)
 
 
-@app.route("/", methods=["GET", "HEAD"])
-def home():
-    return "Aplicação Guardian online", 200
+@app.route("/")
+def index():
+    return send_from_directory(FRONTEND_DIR, "index.html")
+
+
+@app.route("/<path:arquivo>")
+def arquivos_frontend(arquivo):
+    return send_from_directory(FRONTEND_DIR, arquivo)
 
 
 CATALOGO_PATH = "webmetodos.json"
