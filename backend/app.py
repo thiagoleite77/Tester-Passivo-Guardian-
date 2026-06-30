@@ -1,19 +1,26 @@
 from flask import Flask, jsonify, request, send_from_directory
 from flask_cors import CORS
+from datetime import datetime
 import os
 import json
 import re
 
 from passivo.soap_client import SoapClient
-from ativo.integracao import IntegracaoAtivaGuardian
 
 app = Flask(__name__)
 CORS(app)
 
+BACKEND_DIR = os.path.dirname(os.path.abspath(__file__))
+PROJECT_ROOT = os.path.abspath(os.path.join(BACKEND_DIR, ".."))
+FRONTEND_DIR = os.path.join(PROJECT_ROOT, "front-end")
 
-FRONTEND_DIR = os.path.abspath(
-    os.path.join(os.path.dirname(__file__), "..", "front-end")
-)
+CATALOGO_PATH = os.path.join(BACKEND_DIR, "webmetodos.json")
+TEMPLATES_DIR = os.path.join(BACKEND_DIR, "templates")
+CONFIG_PATH = os.path.join(BACKEND_DIR, "config.json")
+
+SOAPACTION_BASE = "http://toledobrasil.com.br/WS_Guardian/"
+
+ULTIMA_REQUISICAO_ATIVA = {"rest": None, "soap": None}
 
 
 @app.route("/", methods=["GET", "HEAD"])
@@ -21,15 +28,14 @@ def index():
     return send_from_directory(FRONTEND_DIR, "index.html")
 
 
-@app.route("/<path:arquivo>")
-def arquivos_frontend(arquivo):
-    return send_from_directory(FRONTEND_DIR, arquivo)
+@app.route("/style.css")
+def style_css():
+    return send_from_directory(FRONTEND_DIR, "style.css")
 
 
-CATALOGO_PATH = "webmetodos.json"
-TEMPLATES_DIR = "templates"
-SOAPACTION_BASE = "http://toledobrasil.com.br/WS_Guardian/"
-CONFIG_PATH = "config.json"
+@app.route("/script.js")
+def script_js():
+    return send_from_directory(FRONTEND_DIR, "script.js")
 
 
 def garantir_estrutura():
@@ -38,6 +44,10 @@ def garantir_estrutura():
     if not os.path.exists(CATALOGO_PATH):
         with open(CATALOGO_PATH, "w", encoding="utf-8") as arquivo:
             json.dump({}, arquivo, indent=4, ensure_ascii=False)
+
+    if not os.path.exists(CONFIG_PATH):
+        with open(CONFIG_PATH, "w", encoding="utf-8") as arquivo:
+            json.dump({"endpoint": ""}, arquivo, indent=4, ensure_ascii=False)
 
 
 def carregar_catalogo():
@@ -53,21 +63,7 @@ def salvar_catalogo(catalogo):
 
 
 def carregar_config():
-    if not os.path.exists(CONFIG_PATH):
-        return {"endpoint": ""}
-
-    with open(CONFIG_PATH, "r", encoding="utf-8") as arquivo:
-        return json.load(arquivo)
-
-
-def salvar_config(config):
-    with open(CONFIG_PATH, "w", encoding="utf-8") as arquivo:
-        json.dump(config, arquivo, indent=4, ensure_ascii=False)
-
-
-def carregar_config():
-    if not os.path.exists(CONFIG_PATH):
-        return {"endpoint": ""}
+    garantir_estrutura()
 
     with open(CONFIG_PATH, "r", encoding="utf-8") as arquivo:
         return json.load(arquivo)
@@ -90,16 +86,6 @@ def substituir_variaveis(xml, variaveis):
     return xml
 
 
-@app.route("/style.css")
-def style_css():
-    return send_from_directory(FRONTEND_DIR, "style.css")
-
-
-@app.route("/script.js")
-def script_js():
-    return send_from_directory(FRONTEND_DIR, "script.js")
-
-
 @app.route("/webmetodos", methods=["GET"])
 def listar_webmetodos():
     return jsonify(carregar_catalogo())
@@ -107,7 +93,7 @@ def listar_webmetodos():
 
 @app.route("/webmetodos", methods=["POST"])
 def cadastrar_webmetodo():
-    dados = request.get_json()
+    dados = request.get_json() or {}
 
     nome = dados.get("nome", "").strip()
     xml_template = dados.get("xml_template", "").strip()
@@ -126,17 +112,14 @@ def cadastrar_webmetodo():
     with open(caminho_template, "w", encoding="utf-8") as arquivo:
         arquivo.write(xml_template)
 
-    catalogo[nome] = {
-        "soap_action": soap_action,
-        "template": caminho_template.replace("\\", "/"),
-    }
+    catalogo[nome] = {"soap_action": soap_action, "template": caminho_template}
 
     salvar_catalogo(catalogo)
 
     return jsonify(
         {
             "status": "ok",
-            "mensagem": "Webmétodo cadastrado com sucesso.",
+            "mensagem": "WebMétodo cadastrado com sucesso.",
             "nome": nome,
             "soap_action": soap_action,
             "webmetodo": catalogo[nome],
@@ -149,7 +132,7 @@ def excluir_webmetodo(nome_metodo):
     catalogo = carregar_catalogo()
 
     if nome_metodo not in catalogo:
-        return jsonify({"erro": "Webmétodo não encontrado."}), 404
+        return jsonify({"erro": "WebMétodo não encontrado."}), 404
 
     template_path = catalogo[nome_metodo].get("template")
 
@@ -160,7 +143,7 @@ def excluir_webmetodo(nome_metodo):
         os.remove(template_path)
 
     return jsonify(
-        {"status": "ok", "mensagem": f"Webmétodo {nome_metodo} excluído com sucesso."}
+        {"status": "ok", "mensagem": f"WebMétodo {nome_metodo} excluído com sucesso."}
     )
 
 
@@ -169,7 +152,7 @@ def obter_template(nome_metodo):
     catalogo = carregar_catalogo()
 
     if nome_metodo not in catalogo:
-        return jsonify({"erro": "Webmétodo não encontrado."}), 404
+        return jsonify({"erro": "WebMétodo não encontrado."}), 404
 
     template_path = catalogo[nome_metodo]["template"]
 
@@ -184,7 +167,7 @@ def obter_template(nome_metodo):
 
 @app.route("/executar-fluxo", methods=["POST"])
 def executar_fluxo():
-    dados = request.get_json()
+    dados = request.get_json() or {}
 
     endpoint = dados.get("endpoint", "").strip()
     fluxo = dados.get("fluxo", [])
@@ -212,7 +195,7 @@ def executar_fluxo():
                     "etapa": index,
                     "metodo": metodo,
                     "status": "erro",
-                    "erro": "Webmétodo não cadastrado.",
+                    "erro": "WebMétodo não cadastrado.",
                 }
             )
             break
@@ -270,7 +253,7 @@ def obter_config():
 
 @app.route("/config", methods=["POST"])
 def atualizar_config():
-    dados = request.get_json()
+    dados = request.get_json() or {}
     endpoint = dados.get("endpoint", "").strip()
 
     if not endpoint:
@@ -286,13 +269,6 @@ def atualizar_config():
             "endpoint": endpoint,
         }
     )
-
-
-# ativo ============
-
-from datetime import datetime
-
-ULTIMA_REQUISICAO_ATIVA = {"rest": None, "soap": None}
 
 
 @app.route("/api/guardian/rest", methods=["POST", "PUT"])
@@ -359,8 +335,6 @@ def obter_ultima_requisicao_ativa(tipo):
 
     return jsonify({"tipo": tipo, "ultima_requisicao": ULTIMA_REQUISICAO_ATIVA[tipo]})
 
-
-import os
 
 if __name__ == "__main__":
     garantir_estrutura()
