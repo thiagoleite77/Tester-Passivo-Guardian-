@@ -10,6 +10,12 @@ from ativo.integracao import IntegracaoAtivaGuardian
 app = Flask(__name__)
 CORS(app)
 
+
+@app.route("/", methods=["GET", "HEAD"])
+def home():
+    return "Aplicação Guardian online", 200
+
+
 CATALOGO_PATH = "webmetodos.json"
 TEMPLATES_DIR = "templates"
 SOAPACTION_BASE = "http://toledobrasil.com.br/WS_Guardian/"
